@@ -6,6 +6,7 @@ app = FastAPI(title="FastAPI JWT Auth MongoDB")
 origins = [
     "http://localhost:5173",  # ton app React
     "http://127.0.0.1:5173",
+    "http://frontend:5173",  # Docker network
 ]
 
 app.add_middleware(

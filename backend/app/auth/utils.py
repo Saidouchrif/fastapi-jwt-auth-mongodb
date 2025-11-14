@@ -5,8 +5,12 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv()
-SECRET_KEY = os.getenv("SECRET_KEY")
-ALGORITHM = os.getenv("ALGORITHM")
+SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-change-this-in-production-min-32-chars")
+ALGORITHM = os.getenv("ALGORITHM", "HS256")
+
+if not SECRET_KEY or len(SECRET_KEY) < 32:
+    import warnings
+    warnings.warn("SECRET_KEY is too short or not set. Please set a secure SECRET_KEY in production.")
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 

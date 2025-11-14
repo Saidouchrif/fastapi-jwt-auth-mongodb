@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "http://127.0.0.1:5000", // ton backend FastAPI
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000", // ton backend FastAPI
   headers: {
     "Content-Type": "application/json",
     "Access-Control-Allow-Origin": "*",

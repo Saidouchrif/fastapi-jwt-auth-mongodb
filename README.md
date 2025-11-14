@@ -19,6 +19,7 @@ Application d'authentification moderne et sécurisée construite avec FastAPI, M
 - [Structure du Projet](#-structure-du-projet)
 - [Installation](#-installation)
 - [Configuration](#-configuration)
+- [🐳 Utilisation avec Docker](#-utilisation-avec-docker)
 - [Utilisation](#-utilisation)
 - [API Endpoints](#-api-endpoints)
 - [Sécurité](#-sécurité)
@@ -409,6 +410,8 @@ fastapi-jwt-auth-mongodb/
 │   │   └── utils/
 │   │       ├── __init__.py
 │   │       └── security.py           # Utilitaires de sécurité
+│   ├── Dockerfile                    # Image Docker pour le backend
+│   ├── .dockerignore                 # Fichiers ignorés lors du build Docker
 │   ├── .env                          # Variables d'environnement
 │   └── requirements.txt              # Dépendances Python
 │
@@ -428,12 +431,16 @@ fastapi-jwt-auth-mongodb/
 │   │   ├── App.css
 │   │   ├── index.css                 # Styles globaux
 │   │   └── main.jsx                  # Point d'entrée React
+│   ├── Dockerfile                    # Image Docker pour le frontend
+│   ├── .dockerignore                 # Fichiers ignorés lors du build Docker
 │   ├── .gitignore
 │   ├── index.html
 │   ├── package.json                  # Dépendances npm
 │   ├── tailwind.config.js            # Configuration Tailwind
 │   └── vite.config.js                # Configuration Vite
 │
+├── docker-compose.yml                # Configuration Docker Compose
+├── README.Docker.md                  # Guide Docker détaillé (optionnel)
 └── README.md                         # Documentation (ce fichier)
 ```
 
@@ -526,6 +533,156 @@ const API = axios.create({
   withCredentials: true,
 });
 ```
+
+---
+
+## 🐳 Utilisation avec Docker
+
+### Prérequis Docker
+
+- **Docker** installé ([Télécharger Docker](https://www.docker.com/get-started))
+- **Docker Compose** installé (inclus avec Docker Desktop)
+
+### Démarrage Rapide avec Docker
+
+Le projet inclut une configuration Docker complète pour exécuter tous les services (MongoDB, Backend, Frontend) en une seule commande.
+
+#### 1. Construire et démarrer tous les services
+
+```bash
+# Depuis la racine du projet
+docker-compose up --build
+```
+
+Cette commande va :
+- ✅ Construire les images Docker pour le backend et le frontend
+- ✅ Démarrer MongoDB dans un conteneur
+- ✅ Démarrer le backend FastAPI
+- ✅ Démarrer le frontend React/Vite
+- ✅ Configurer automatiquement le réseau entre les services
+
+#### 2. Démarrer en arrière-plan
+
+```bash
+docker-compose up -d --build
+```
+
+#### 3. Arrêter les services
+
+```bash
+docker-compose down
+```
+
+#### 4. Arrêter et supprimer les volumes (données MongoDB)
+
+```bash
+docker-compose down -v
+```
+
+⚠️ **Attention** : Cette commande supprimera toutes les données MongoDB stockées.
+
+### Services Disponibles avec Docker
+
+Une fois les conteneurs démarrés, les services sont accessibles sur :
+
+- **Frontend** : http://localhost:5173
+- **Backend API** : http://localhost:8000
+- **Documentation API** : http://localhost:8000/docs
+- **MongoDB** : localhost:27017
+
+### Commandes Docker Utiles
+
+#### Voir les logs
+
+```bash
+# Tous les services
+docker-compose logs -f
+
+# Un service spécifique
+docker-compose logs -f backend
+docker-compose logs -f frontend
+docker-compose logs -f mongodb
+```
+
+#### Redémarrer un service
+
+```bash
+docker-compose restart backend
+docker-compose restart frontend
+docker-compose restart mongodb
+```
+
+#### Reconstruire un service spécifique
+
+```bash
+docker-compose up --build backend
+docker-compose up --build frontend
+```
+
+#### Accéder au shell d'un conteneur
+
+```bash
+# Backend
+docker-compose exec backend bash
+
+# Frontend
+docker-compose exec frontend sh
+```
+
+### Configuration Docker
+
+Le fichier `docker-compose.yml` configure :
+
+- **MongoDB** : Service MongoDB avec persistance des données via volumes
+- **Backend** : Service FastAPI avec hot-reload activé (modifications de code prises en compte automatiquement)
+- **Frontend** : Service React/Vite avec hot-reload activé
+- **Réseau** : Réseau Docker privé pour la communication entre services
+
+### Variables d'Environnement Docker
+
+Les variables d'environnement sont automatiquement configurées dans `docker-compose.yml` :
+
+- **Backend** : `MONGO_URI=mongodb://mongodb:27017/fastapi_auth`
+- **Frontend** : `VITE_API_URL=http://localhost:8000`
+
+### Hot-Reload avec Docker
+
+Les volumes sont configurés pour permettre le hot-reload :
+- Les modifications dans `backend/` sont automatiquement reflétées dans le conteneur backend
+- Les modifications dans `frontend/` sont automatiquement reflétées dans le conteneur frontend
+
+### Persistance des Données
+
+MongoDB utilise un volume Docker nommé `mongodb_data` pour persister les données. Les données sont conservées même après l'arrêt des conteneurs.
+
+Pour supprimer complètement les données :
+
+```bash
+docker-compose down -v
+```
+
+### Structure des Fichiers Docker
+
+```
+fastapi-jwt-auth-mongodb/
+│
+├── docker-compose.yml          # Configuration Docker Compose
+├── backend/
+│   ├── Dockerfile              # Image Docker pour le backend
+│   └── .dockerignore           # Fichiers ignorés lors du build
+├── frontend/
+│   ├── Dockerfile              # Image Docker pour le frontend
+│   └── .dockerignore           # Fichiers ignorés lors du build
+└── README.Docker.md            # Guide Docker détaillé (optionnel)
+```
+
+### Avantages de Docker
+
+✅ **Installation simplifiée** : Pas besoin d'installer Python, Node.js ou MongoDB localement  
+✅ **Environnement isolé** : Chaque service fonctionne dans son propre conteneur  
+✅ **Reproductibilité** : Même environnement sur toutes les machines  
+✅ **Déploiement facile** : Configuration prête pour la production  
+✅ **Gestion des dépendances** : Toutes les dépendances sont encapsulées  
 
 ---
 
